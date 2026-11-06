@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  Wifi
 } from 'lucide-react';
 import { ShopSettings, UserRole } from '../types/index.ts';
 
@@ -32,6 +33,7 @@ interface Props {
   settings: ShopSettings;
   currentUser?: { id?: string; username: string; name: string; role?: UserRole } | null;
   onLogout: () => void;
+  onOpenMobileConnect: () => void;
 }
 
 export const Navbar: React.FC<Props> = ({ 
@@ -39,7 +41,8 @@ export const Navbar: React.FC<Props> = ({
   setActiveTab, 
   settings, 
   currentUser,
-  onLogout 
+  onLogout,
+  onOpenMobileConnect 
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const userRole = currentUser?.role || 'manager';
@@ -150,6 +153,16 @@ export const Navbar: React.FC<Props> = ({
 
           {/* User Profile Badge & Logout Action */}
           <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={onOpenMobileConnect}
+              title="بەستنەوە بە مۆبایل لە ڕێگەی Wi-Fi"
+              className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/90 px-3 py-2 rounded-xl font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+            >
+              <Wifi className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+              <span className="hidden sm:inline">مۆبایل و Wi-Fi</span>
+              <span className="sm:hidden">مۆبایل</span>
+            </button>
+
             {currentUser && (
               <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold">
@@ -188,6 +201,16 @@ export const Navbar: React.FC<Props> = ({
         {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 py-3 grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenMobileConnect();
+              }}
+              className="col-span-2 flex items-center justify-center gap-2 p-2.5 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200"
+            >
+              <Wifi className="w-4 h-4 text-blue-600" />
+              <span>بەستنەوە بە مۆبایل لە ڕێگەی Wi-Fi (QR Code)</span>
+            </button>
             {visibleNavItems.map((item) => (
               <button
                 key={item.id}

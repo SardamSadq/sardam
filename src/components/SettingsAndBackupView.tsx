@@ -33,6 +33,7 @@ interface Props {
   onRestoreFromDrive: () => Promise<void>;
   driveSyncing: boolean;
   lastDriveSync: string | null;
+  onOpenMobileConnect?: () => void;
 }
 
 export const SettingsAndBackupView: React.FC<Props> = ({
@@ -46,6 +47,7 @@ export const SettingsAndBackupView: React.FC<Props> = ({
   onRestoreFromDrive,
   driveSyncing,
   lastDriveSync,
+  onOpenMobileConnect,
 }) => {
   const [formData, setFormData] = useState<ShopSettings>({ ...settings });
   const [saving, setSaving] = useState(false);
@@ -501,38 +503,61 @@ export const SettingsAndBackupView: React.FC<Props> = ({
               </a>
 
               <a
+                href="/api/download-build-exe-script"
+                download="Build-Windows-EXE.bat"
+                className="bg-purple-600 hover:bg-purple-500 text-white font-semibold text-[11px] px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-xs"
+                title="فایلی دروستکردنی راستەوخۆی EXE لەسەر لاپتۆپەکەت"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>دروستکەری EXE لەسەر کۆمپیوتەر</span>
+              </a>
+
+              <a
                 href="/api/download-silent-launcher"
                 download="Start-QISTYAR-Silent.vbs"
                 className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold text-[11px] px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors"
                 title="دەستپێکردن بەبێ دەرکەوتنی پەنجەرەی ڕەشی CMD"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>داگرتنی شێوازی بێدەنگ (.vbs)</span>
+                <span>دەستپێکردنی بێدەنگ (.vbs)</span>
               </a>
             </div>
           </div>
         </div>
 
-        {/* Local Storage & Security Notice */}
+        {/* Local Storage, Wi-Fi & Security Notice */}
         <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="space-y-1">
             <div className="font-bold text-blue-950 flex items-center gap-1.5">
               <HardDrive className="w-4 h-4 text-blue-700" />
-              <span>داتاکانی ناوخۆ لە کۆمپیوتەرەکەت:</span>
+              <span>داتاکانی ناوخۆ و بەستنەوە بە وایفای مۆبایل:</span>
             </div>
             <p className="text-blue-900 text-[11px]">
-              هەموو کڕیاران و گرێبەستەکان لە فایلی <code className="bg-blue-100 px-1 py-0.5 rounded font-mono font-bold">data/db.json</code> لە تەنیشت بەرنامەکە پاشەکەوت دەبن و هەمیشە پارێزراون.
+              داتاکان لە فایلی <code className="bg-blue-100 px-1 py-0.5 rounded font-mono font-bold">data/db.json</code> دەمێننەوە. لە ڕێگەی هەمان تۆڕی Wi-Fi دەتوانیت لەگەڵ مۆبایلەکەشت بیبەستیتەوە.
             </p>
           </div>
 
-          <a
-            href="/api/download-readme"
-            download="README-Windows.txt"
-            className="inline-flex items-center gap-1.5 bg-white hover:bg-blue-100/50 text-blue-800 font-semibold text-xs px-3 py-2 rounded-lg border border-blue-300 transition-colors shrink-0"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>خوێندنەوەی ڕێنمایی کوردی (README.txt)</span>
-          </a>
+          <div className="flex items-center gap-2 shrink-0">
+            {onOpenMobileConnect && (
+              <button
+                type="button"
+                onClick={onOpenMobileConnect}
+                className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xs transition-colors cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>کردنەوەی مۆبایل و QR Code</span>
+              </button>
+            )}
+
+            <a
+              href="/api/download-readme"
+              download="README-Windows.txt"
+              className="inline-flex items-center gap-1.5 bg-white hover:bg-blue-100/50 text-blue-800 font-semibold text-xs px-3 py-2 rounded-lg border border-blue-300 transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>ڕێنمایی (README)</span>
+            </a>
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import child_process from 'child_process';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -736,6 +737,65 @@ app.get('/api/download-readme', (_req, res) => {
   }
 });
 
+// Download Windows Local EXE Builder Script
+app.get('/api/download-build-exe-script', (_req, res) => {
+  const filePath = path.join(baseAppDir, 'Build-Windows-EXE.bat');
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'application/x-bat');
+    res.setHeader('Content-Disposition', 'attachment; filename="Build-Windows-EXE.bat"');
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('فایلی دروستکردن نەدۆزرایەوە');
+  }
+});
+
+// Helper function to detect local network IPv4 addresses (Wi-Fi, Ethernet, Hotspot)
+function getLocalIpAddresses(): { name: string; address: string; type: string }[] {
+  const interfaces = os.networkInterfaces();
+  const results: { name: string; address: string; type: string }[] = [];
+
+  for (const [name, netList] of Object.entries(interfaces)) {
+    if (!netList) continue;
+    for (const net of netList) {
+      if (net.family === 'IPv4' && !net.internal) {
+        let type = 'LAN / Wi-Fi';
+        const lower = name.toLowerCase();
+        if (lower.includes('wi-fi') || lower.includes('wlan') || lower.includes('wireless') || lower.includes('wl')) {
+          type = 'وایفای (Wi-Fi)';
+        } else if (lower.includes('eth') || lower.includes('en') || lower.includes('local area') || lower.includes('lan')) {
+          type = 'کێبڵ (Ethernet)';
+        } else if (lower.includes('hotspot') || lower.includes('ap') || lower.includes('mobile')) {
+          type = 'هۆتسپۆت (Hotspot)';
+        }
+        results.push({
+          name,
+          address: net.address,
+          type,
+        });
+      }
+    }
+  }
+  return results;
+}
+
+// Network and Wi-Fi connection info for mobile access
+app.get('/api/network-info', (req, res) => {
+  const ips = getLocalIpAddresses();
+  const host = req.headers.host || `localhost:${PORT}`;
+  res.json({
+    port: PORT,
+    host,
+    localIps: ips,
+    mobileUrls: ips.map((item) => ({
+      url: `http://${item.address}:${PORT}`,
+      name: item.name,
+      type: item.type,
+      ip: item.address,
+    })),
+    cloudUrl: 'https://ais-pre-bp5soyigu44j656r4gxd7s-138408115845.europe-west1.run.app',
+  });
+});
+
 // Restore Endpoint
 app.post('/api/restore', (req, res) => {
   try {
@@ -787,7 +847,18 @@ async function startServer() {
   }
 
   httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log('==================================================================');
+    console.log(`🚀 سێرڤەری سیستەمی قیست (QISTYAR) بە سەرکەوتوویی دەستی پێکرد`);
+    console.log(`💻 ناونیشان لەسەر ئەم لاپتۆپە: http://localhost:${PORT}`);
+    const ips = getLocalIpAddresses();
+    if (ips.length > 0) {
+      console.log(`📱 ناونیشان بۆ کردنەوە لەسەر مۆبایل لە ڕێگەی هەمان Wi-Fi یان Hotspot:`);
+      ips.forEach((item) => {
+        console.log(`   👉 http://${item.address}:${PORT}  [${item.type}]`);
+      });
+    }
+    console.log('==================================================================');
+
     const shouldOpen = process.argv.includes('--open') || process.env.OPEN_BROWSER === 'true' || isDesktopExe;
     if (shouldOpen) {
       const url = `http://localhost:${PORT}`;

@@ -16,6 +16,7 @@ import { TelegramAndAlertsView } from './components/TelegramAndAlertsView.tsx';
 import { SettingsAndBackupView } from './components/SettingsAndBackupView.tsx';
 import { PaymentModal } from './components/PaymentModal.tsx';
 import { PrintPreviewModal, PrintMode } from './components/PrintPreviewModal.tsx';
+import { MobileConnectModal } from './components/MobileConnectModal.tsx';
 import { 
   Customer, 
   Contract, 
@@ -106,6 +107,8 @@ export default function App() {
   const [printMode, setPrintMode] = useState<PrintMode>('legal');
   const [printContractTarget, setPrintContractTarget] = useState<Contract | null>(null);
   const [printPaymentTarget, setPrintPaymentTarget] = useState<PaymentRecord | null>(null);
+
+  const [mobileConnectModalOpen, setMobileConnectModalOpen] = useState(false);
 
   // Calculate available capital
   const availableCapital = useMemo(() => {
@@ -435,6 +438,7 @@ export default function App() {
         settings={settings}
         currentUser={currentUser}
         onLogout={handleLogout}
+        onOpenMobileConnect={() => setMobileConnectModalOpen(true)}
       />
 
       {/* Main Content Viewport */}
@@ -546,6 +550,7 @@ export default function App() {
             onRestoreFromDrive={handleRestoreFromDrive}
             driveSyncing={driveSyncing}
             lastDriveSync={lastDriveSync}
+            onOpenMobileConnect={() => setMobileConnectModalOpen(true)}
           />
         )}
       </main>
@@ -573,6 +578,12 @@ export default function App() {
         customer={printTargetCustomer}
         payment={printPaymentTarget}
         settings={settings}
+      />
+
+      {/* Mobile & Wi-Fi Connection Modal */}
+      <MobileConnectModal
+        isOpen={mobileConnectModalOpen}
+        onClose={() => setMobileConnectModalOpen(false)}
       />
 
       {/* Footer */}
