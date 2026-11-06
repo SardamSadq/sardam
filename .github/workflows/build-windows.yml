@@ -18,20 +18,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps --ignore-engines
 
       - name: Build Web Frontend (React + Vite)
         run: npm run build
 
       - name: Bundle Production Server with esbuild
         run: |
-          npx esbuild server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist-desktop/server.cjs --external:vite
+          npx esbuild server.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist-desktop/server.cjs --external:vite
 
       - name: Compile Native Windows Launcher (QISTYAR.exe)
         shell: pwsh

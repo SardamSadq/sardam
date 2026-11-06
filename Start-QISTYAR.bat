@@ -41,7 +41,7 @@ if exist "QISTYAR.exe" (
     )
     if not exist "node_modules" (
         echo دامەزراندنی پاکێجەکان بۆ یەکەمجار...
-        call npm install
+        call npm install --legacy-peer-deps --ignore-engines
     )
     if not exist "dist" (
         echo دروستکردنی فایلی وێبی پرۆژەکە (Build)...

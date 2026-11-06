@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 )
 
 echo [1/4] پشکنین و دامەزراندنی پێداویستییەکان...
-call npm install
+call npm install --legacy-peer-deps --ignore-engines
 
 echo [2/4] دروستکردنی فایلی ڕوکاری وێب (React Build)...
 call npm run build
