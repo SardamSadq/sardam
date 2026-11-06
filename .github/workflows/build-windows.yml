@@ -3,8 +3,6 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - master
       - '**'
     tags:
       - 'v*'
@@ -33,63 +31,48 @@ jobs:
 
       - name: Bundle Production Server with esbuild
         run: |
-          npx esbuild server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist-desktop/bundle.cjs --external:vite
+          npx esbuild server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist-desktop/server.cjs --external:vite
 
-      - name: Build Windows Executable (QISTYAR.exe)
+      - name: Compile Native Windows Launcher (QISTYAR.exe)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "dist-desktop"
           
-          # Attempt 1: Fast & reliable standalone package compilation via @yao-pkg/pkg
-          Write-Host "Attempting build via @yao-pkg/pkg..."
-          try {
-              npx --yes @yao-pkg/pkg dist-desktop/bundle.cjs --targets node20-win-x64 --output dist-desktop/QISTYAR.exe
-          } catch {
-              Write-Host "pkg encountered an issue, trying SEA fallback..."
+          # Find Microsoft C# Compiler (csc.exe) preinstalled on all Windows runners
+          $csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          if (-not (Test-Path $csc)) {
+              $csc = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe"
           }
-
-          # Attempt 2: Node Single Executable Application (SEA) fallback if needed
-          if (-not (Test-Path "dist-desktop/QISTYAR.exe")) {
-              Write-Host "Running Node.js SEA build with signature removal..."
-              $seaConfig = @{
-                  main = "dist-desktop/bundle.cjs"
-                  output = "dist-desktop/sea-prep.blob"
-                  disableExperimentalSEAWarning = $true
-              } | ConvertTo-Json
-              Set-Content -Path "dist-desktop/sea-config.json" -Value $seaConfig
-              node --experimental-sea-config dist-desktop/sea-config.json
-              
-              $nodePath = (Get-Command node).Source
-              Copy-Item $nodePath -Destination "dist-desktop/QISTYAR.exe"
-              
-              # Locate signtool in Windows SDK and remove signature from node.exe copy
-              $signtool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin" -Filter "signtool.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
-              if ($signtool) {
-                  Write-Host "Removing digital signature using $signtool ..."
-                  & "$signtool" remove /s dist-desktop/QISTYAR.exe
-              }
-              
-              npx --yes postject dist-desktop/QISTYAR.exe NODE_SEA_BLOB dist-desktop/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+          if (-not (Test-Path $csc)) {
+              $csc = (Get-ChildItem -Path "C:\Windows\Microsoft.NET" -Filter "csc.exe" -Recurse | Select-Object -First 1).FullName
           }
+          
+          Write-Host "Compiling native Windows GUI launcher using $csc ..."
+          & $csc /target:winexe /out:dist-desktop\QISTYAR.exe Launcher.cs
+          
+          # Copy portable node.exe so application is 100% standalone
+          $nodeSource = (Get-Command node).Source
+          Copy-Item $nodeSource -Destination "dist-desktop\node.exe"
+          
+          Write-Host "Native QISTYAR.exe built successfully!"
 
       - name: Assemble Windows Standalone Package
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "QISTYAR-Windows"
-          if (Test-Path "dist-desktop/QISTYAR.exe") {
-              Copy-Item "dist-desktop/QISTYAR.exe" -Destination "QISTYAR-Windows/"
-          }
-          Copy-Item -Recurse "dist" -Destination "QISTYAR-Windows/"
-          Copy-Item -Recurse "data" -Destination "QISTYAR-Windows/"
-          Copy-Item "Start-QISTYAR.bat" -Destination "QISTYAR-Windows/"
-          Copy-Item "Start-QISTYAR-Silent.vbs" -Destination "QISTYAR-Windows/"
-          Copy-Item "README-Windows.txt" -Destination "QISTYAR-Windows/"
-          Copy-Item "Build-Windows-EXE.bat" -Destination "QISTYAR-Windows/"
+          Copy-Item "dist-desktop\QISTYAR.exe" -Destination "QISTYAR-Windows\"
+          Copy-Item "dist-desktop\node.exe" -Destination "QISTYAR-Windows\"
+          Copy-Item "dist-desktop\server.cjs" -Destination "QISTYAR-Windows\"
+          Copy-Item -Recurse "dist" -Destination "QISTYAR-Windows\"
+          Copy-Item -Recurse "data" -Destination "QISTYAR-Windows\"
+          Copy-Item "Start-QISTYAR.bat" -Destination "QISTYAR-Windows\"
+          Copy-Item "Start-QISTYAR-Silent.vbs" -Destination "QISTYAR-Windows\"
+          Copy-Item "README-Windows.txt" -Destination "QISTYAR-Windows\"
 
       - name: Compress to ZIP Archive
         shell: pwsh
         run: |
-          Compress-Archive -Path "QISTYAR-Windows/*" -DestinationPath "QISTYAR-Windows-64bit.zip" -Force
+          Compress-Archive -Path "QISTYAR-Windows\*" -DestinationPath "QISTYAR-Windows-64bit.zip" -Force
 
       - name: Upload Windows 64-bit EXE Artifact
         uses: actions/upload-artifact@v4
@@ -100,6 +83,7 @@ jobs:
 
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
+        continue-on-error: true
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
         with:
           tag_name: v1.0.0-windows
