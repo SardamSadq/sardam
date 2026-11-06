@@ -1,0 +1,68 @@
+name: Build QISTYAR Windows 64-bit EXE
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Web Frontend (React + Vite)
+        run: npm run build
+
+      - name: Bundle Production Server with esbuild
+        run: |
+          npx esbuild server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist-desktop/bundle.cjs --external:vite
+
+      - name: Generate Windows SEA Executable (QISTYAR.exe)
+        shell: pwsh
+        run: |
+          $seaConfig = @{
+            main = "dist-desktop/bundle.cjs"
+            output = "dist-desktop/sea-prep.blob"
+            disableExperimentalSEAWarning = $true
+          } | ConvertTo-Json
+          Set-Content -Path "dist-desktop/sea-config.json" -Value $seaConfig
+          node --experimental-sea-config dist-desktop/sea-config.json
+          
+          # Copy node.exe to QISTYAR.exe
+          $nodePath = (Get-Command node).Source
+          Copy-Item $nodePath -Destination "dist-desktop/QISTYAR.exe"
+          
+          # Inject blob using postject
+          npx --yes postject dist-desktop/QISTYAR.exe NODE_SEA_BLOB dist-desktop/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+
+      - name: Assemble Windows Standalone Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "QISTYAR-Windows"
+          Copy-Item "dist-desktop/QISTYAR.exe" -Destination "QISTYAR-Windows/"
+          Copy-Item -Recurse "dist" -Destination "QISTYAR-Windows/"
+          Copy-Item -Recurse "data" -Destination "QISTYAR-Windows/"
+          Copy-Item "Start-QISTYAR.bat" -Destination "QISTYAR-Windows/"
+          Copy-Item "Start-QISTYAR-Silent.vbs" -Destination "QISTYAR-Windows/"
+          Copy-Item "README-Windows.txt" -Destination "QISTYAR-Windows/"
+
+      - name: Compress to ZIP Archive
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "QISTYAR-Windows/*" -DestinationPath "QISTYAR-Windows-64bit.zip" -Force
+
+      - name: Upload Windows 64-bit EXE Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QISTYAR-Windows-64bit-EXE
+          path: QISTYAR-Windows-64bit.zip
