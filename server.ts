@@ -35,12 +35,17 @@ const DATA_DIR = fs.existsSync(path.resolve(baseAppDir, 'data'))
   ? path.resolve(baseAppDir, 'data')
   : (fs.existsSync(path.resolve(process.cwd(), 'data')) ? path.resolve(process.cwd(), 'data') : path.resolve(baseAppDir, 'data'));
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 const defaultLegalTerms = `١. لایەنی دووەم (کڕیار) و لایەنی سێیەم (کفیل) بە یەکەوە و بە هاوبەشی بەرپرسیارن لە دانەوەی هەموو بڕی پارەی قیستەکان لە کاتی دیاریکراوی خۆیدا.
 ٢. لە حاڵەتی دواکەوتنی هەر قیستێک بۆ ماوەی زیاتر لە ٧ ڕۆژ، تەواوی پارەی ماوەی قیستەکان دەبێتە قەرزێکی دەستبەجێ (حاڵ) و فرۆشیار مافی قانونی هەیە پەنا بباتە بەر دادگاکانی هەرێمی کوردستان و دەستبەسەرداگرتنی مۆڵەت و مووچەی کڕیار یان کفیل.
@@ -126,9 +131,58 @@ function initDb(): DatabaseSchema {
   }
 }
 
+let lastDataModified = Date.now();
+
+function saveBase64Image(dataUri: string, filenamePrefix: string): void {
+  if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:image/')) return;
+  try {
+    const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) return;
+    const ext = matches[1].replace('jpeg', 'jpg');
+    const buffer = Buffer.from(matches[2], 'base64');
+    const safeName = filenamePrefix.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const targetFile = path.join(UPLOADS_DIR, `${safeName}.${ext}`);
+    fs.writeFileSync(targetFile, buffer);
+  } catch (e) {
+    // Non-critical, continue
+  }
+}
+
+function saveImagesToDisk(data: DatabaseSchema) {
+  try {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+      fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    // Extract & save customer photos
+    data.customers.forEach((c) => {
+      if (c.idCardPhotoFront) saveBase64Image(c.idCardPhotoFront, `customer_${c.id}_id_front`);
+      if (c.idCardPhotoBack) saveBase64Image(c.idCardPhotoBack, `customer_${c.id}_id_back`);
+      if (c.personalPhoto) saveBase64Image(c.personalPhoto, `customer_${c.id}_personal`);
+      if (c.guarantorIdPhoto) saveBase64Image(c.guarantorIdPhoto, `customer_${c.id}_guarantor_id`);
+      if (c.promissoryNotePhoto) saveBase64Image(c.promissoryNotePhoto, `customer_${c.id}_kombiyala`);
+    });
+    // Extract & save contract documents
+    data.contracts.forEach((ct) => {
+      if (ct.promissoryNotePhoto) saveBase64Image(ct.promissoryNotePhoto, `contract_${ct.contractNumber}_kombiyala`);
+      if (ct.guarantorIdPhoto) saveBase64Image(ct.guarantorIdPhoto, `contract_${ct.contractNumber}_guarantor_id`);
+      if (ct.contractDocumentPhoto) saveBase64Image(ct.contractDocumentPhoto, `contract_${ct.contractNumber}_doc`);
+    });
+    // Extract & save payment receipts
+    data.payments.forEach((p) => {
+      if (p.receiptPhoto) saveBase64Image(p.receiptPhoto, `receipt_${p.receiptNumber}`);
+    });
+  } catch (err) {
+    console.error('Error saving image attachments to disk:', err);
+  }
+}
+
 function saveDb(db: DatabaseSchema) {
   try {
+    lastDataModified = Date.now();
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+    const backupFile = path.join(DATA_DIR, 'db_backup.json');
+    fs.writeFileSync(backupFile, JSON.stringify(db, null, 2), 'utf8');
+    saveImagesToDisk(db);
   } catch (err) {
     console.error('Failed to write db.json:', err);
   }
@@ -225,6 +279,18 @@ app.get('/api/data', (_req, res) => {
     expenses: db.expenses,
     settings: db.settings,
     users: db.users,
+    lastModified: lastDataModified,
+  });
+});
+
+// Lightweight sync status check for real-time live polling (sub-second mobile & laptop auto-sync)
+app.get('/api/sync-status', (_req, res) => {
+  res.json({
+    lastModified: lastDataModified,
+    customersCount: db.customers.length,
+    contractsCount: db.contracts.length,
+    paymentsCount: db.payments.length,
+    timestamp: Date.now(),
   });
 });
 

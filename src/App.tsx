@@ -155,6 +155,63 @@ export default function App() {
     return null;
   }, []);
 
+  const [isLiveSyncing, setIsLiveSyncing] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date>(new Date());
+
+  // Manual refresh handler
+  const handleManualRefresh = useCallback(async () => {
+    setIsLiveSyncing(true);
+    try {
+      const latestDb = await refreshData();
+      autoSyncToDrive(latestDb);
+      setLastSyncedAt(new Date());
+    } finally {
+      setIsLiveSyncing(false);
+    }
+  }, [refreshData]);
+
+  // Real-time Live Synchronization with Laptop and Mobile server
+  // When mobile edits something, laptop detects the change within 3 seconds and updates seamlessly
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let lastKnownModified = 0;
+
+    const checkSync = async () => {
+      try {
+        const res = await fetch('/api/sync-status');
+        if (!res.ok) return;
+        const status = await res.json();
+        
+        if (lastKnownModified !== 0 && status.lastModified > lastKnownModified) {
+          setIsLiveSyncing(true);
+          const latestDb = await refreshData();
+          autoSyncToDrive(latestDb);
+          setLastSyncedAt(new Date());
+          setIsLiveSyncing(false);
+        }
+        lastKnownModified = status.lastModified;
+      } catch {
+        // network or offline, ignore
+      }
+    };
+
+    checkSync();
+    const interval = setInterval(checkSync, 3000);
+
+    const handleFocus = () => {
+      checkSync();
+    };
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('visibilitychange', handleFocus);
+    };
+  }, [isAuthenticated, refreshData]);
+
   useEffect(() => {
     if (isAuthenticated) {
       refreshData();
@@ -439,6 +496,9 @@ export default function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenMobileConnect={() => setMobileConnectModalOpen(true)}
+        onManualRefresh={handleManualRefresh}
+        isLiveSyncing={isLiveSyncing}
+        lastSyncedAt={lastSyncedAt}
       />
 
       {/* Main Content Viewport */}

@@ -6,7 +6,8 @@ import {
   Zap, 
   Printer, 
   DollarSign, 
-  CreditCard 
+  CreditCard,
+  Camera
 } from 'lucide-react';
 import { Contract, PaymentRecord, UserRole } from '../types/index.ts';
 import { formatCurrency } from '../utils/calculations.ts';
@@ -24,6 +25,7 @@ interface Props {
     paymentMethod: 'cash' | 'bank_transfer' | 'fastpay' | 'fib';
     isEarlyPayoff: boolean;
     notes?: string;
+    receiptPhoto?: string;
     collectedBy?: {
       userId: string;
       userName: string;
@@ -47,6 +49,7 @@ export const PaymentModal: React.FC<Props> = ({
   const [selectedContractId, setSelectedContractId] = useState<string>(
     defaultContract?.id || (activeContracts[0]?.id || '')
   );
+  const [receiptPhoto, setReceiptPhoto] = useState<string>('');
 
   const selectedContract = contracts.find((c) => c.id === selectedContractId) || null;
 
@@ -126,6 +129,7 @@ export const PaymentModal: React.FC<Props> = ({
         paymentMethod,
         isEarlyPayoff,
         notes,
+        receiptPhoto: receiptPhoto || undefined,
         collectedBy: currentUser ? {
           userId: currentUser.id || currentUser.username,
           userName: currentUser.name,
@@ -138,6 +142,18 @@ export const PaymentModal: React.FC<Props> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleReceiptPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setReceiptPhoto(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   if (!isOpen) return null;
@@ -336,6 +352,37 @@ export const PaymentModal: React.FC<Props> = ({
                     placeholder="بۆ نموونە: قیستی مانگی ۳ درا لە ڕێگەی بانکەوە"
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 focus:bg-white"
                   />
+                </div>
+
+                {/* Receipt Photo Attachment */}
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1 text-[11px]">
+                    وێنەی وەسڵ / بەڵگەی حەواڵەی بانکی (ئارەزوومەندانە)
+                  </label>
+                  {receiptPhoto ? (
+                    <div className="relative group w-20 h-20 rounded-xl overflow-hidden border border-slate-300">
+                      <img src={receiptPhoto} alt="Receipt" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setReceiptPhoto('')}
+                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-90 hover:opacity-100"
+                        title="سڕینەوەی وێنە"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center justify-center gap-2 p-2.5 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 cursor-pointer text-slate-500 transition-colors">
+                      <Camera className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs">گرتنی وێنە بە کامێرای مۆبایل یان هەڵبژاردنی وێنە</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleReceiptPhotoUpload}
+                      />
+                    </label>
+                  )}
                 </div>
 
                 <button

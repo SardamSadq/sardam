@@ -5,7 +5,8 @@ import {
   Printer, 
   Calendar, 
   Plus, 
-  ArrowUpRight 
+  ArrowUpRight,
+  Camera
 } from 'lucide-react';
 import { PaymentRecord, Contract } from '../types/index.ts';
 import { formatCurrency } from '../utils/calculations.ts';
@@ -115,7 +116,21 @@ export const PaymentsListView: React.FC<Props> = ({
 
                   return (
                     <tr key={pay.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-4 font-mono font-bold text-slate-900">{pay.receiptNumber}</td>
+                      <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                        <div>{pay.receiptNumber}</div>
+                        {pay.receiptPhoto && (
+                          <a
+                            href={pay.receiptPhoto}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 px-1.5 py-0.5 rounded font-sans font-medium mt-1 transition-colors"
+                            title="بینینی وێنەی وەسڵ / بەڵگە"
+                          >
+                            <Camera className="w-3 h-3 text-emerald-600" />
+                            <span>وێنەی وەسڵ</span>
+                          </a>
+                        )}
+                      </td>
                       <td className="py-3 px-4 font-bold text-slate-900">{pay.customerName}</td>
                       <td className="py-3 px-4 font-mono text-slate-600">{pay.date}</td>
                       <td className="py-3 px-4 font-mono font-bold text-emerald-700">

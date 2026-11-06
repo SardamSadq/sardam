@@ -10,7 +10,9 @@ import {
   DollarSign,
   AlertCircle,
   Lock,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Camera,
+  X
 } from 'lucide-react';
 import { Customer, Contract, ShopSettings, UserRole } from '../types/index.ts';
 import { 
@@ -75,9 +77,29 @@ export const ContractCalculatorView: React.FC<Props> = ({
   const [dueDayNumber, setDueDayNumber] = useState<number>(25);
   const [securityCheckAmount, setSecurityCheckAmount] = useState<number>(0);
 
+  // Attachments: ID card, Guarantor ID, Promissory Note / Kombiyala
+  const [customerIdPhoto, setCustomerIdPhoto] = useState<string>('');
+  const [guarantorIdPhoto, setGuarantorIdPhoto] = useState<string>('');
+  const [promissoryNotePhoto, setPromissoryNotePhoto] = useState<string>('');
+
   // Saving state
   const [saving, setSaving] = useState(false);
   const [successContract, setSuccessContract] = useState<Contract | null>(null);
+
+  const handleUploadPhoto = (
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setter(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // When picking an existing customer, auto fill fields
   const handleCustomerSelect = (id: string) => {
@@ -94,6 +116,9 @@ export const ContractCalculatorView: React.FC<Props> = ({
       setGuarantorId(found.guarantorId || '');
       setGuarantorPhone(found.guarantorPhone || '');
       setGuarantorWorkplace(found.guarantorWorkplace || '');
+      if (found.idCardPhotoFront) setCustomerIdPhoto(found.idCardPhotoFront);
+      if (found.guarantorIdPhoto) setGuarantorIdPhoto(found.guarantorIdPhoto);
+      if (found.promissoryNotePhoto) setPromissoryNotePhoto(found.promissoryNotePhoto);
     } else {
       setCustomerName('');
       setCustomerIdNumber('');
@@ -105,6 +130,9 @@ export const ContractCalculatorView: React.FC<Props> = ({
       setGuarantorId('');
       setGuarantorPhone('');
       setGuarantorWorkplace('');
+      setCustomerIdPhoto('');
+      setGuarantorIdPhoto('');
+      setPromissoryNotePhoto('');
     }
   };
 

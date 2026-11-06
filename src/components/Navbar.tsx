@@ -13,7 +13,8 @@ import {
   X,
   ShieldCheck,
   UserCheck,
-  Wifi
+  Wifi,
+  RefreshCw
 } from 'lucide-react';
 import { ShopSettings, UserRole } from '../types/index.ts';
 
@@ -34,6 +35,9 @@ interface Props {
   currentUser?: { id?: string; username: string; name: string; role?: UserRole } | null;
   onLogout: () => void;
   onOpenMobileConnect: () => void;
+  onManualRefresh?: () => void;
+  isLiveSyncing?: boolean;
+  lastSyncedAt?: Date;
 }
 
 export const Navbar: React.FC<Props> = ({ 
@@ -42,7 +46,10 @@ export const Navbar: React.FC<Props> = ({
   settings, 
   currentUser,
   onLogout,
-  onOpenMobileConnect 
+  onOpenMobileConnect,
+  onManualRefresh,
+  isLiveSyncing = false,
+  lastSyncedAt
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const userRole = currentUser?.role || 'manager';
@@ -152,11 +159,25 @@ export const Navbar: React.FC<Props> = ({
           </nav>
 
           {/* User Profile Badge & Logout Action */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Live Sync Status & Manual Refresh Button */}
+            {onManualRefresh && (
+              <button
+                onClick={onManualRefresh}
+                disabled={isLiveSyncing}
+                title="نوێکردنەوە و ڕیفریش (هاوکاتکردنی ڕاستەوخۆ)"
+                className="flex items-center gap-1.5 text-xs text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/90 px-2.5 py-2 rounded-xl font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${isLiveSyncing ? 'animate-spin' : ''}`} />
+                <span className="hidden md:inline">{isLiveSyncing ? 'هاوکاتدەبێت...' : 'ڕیفریش'}</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse hidden sm:inline-block" title="هاوکاتکردنی ڕاستەوخۆ چالاکە"></span>
+              </button>
+            )}
+
             <button
               onClick={onOpenMobileConnect}
               title="بەستنەوە بە مۆبایل لە ڕێگەی Wi-Fi"
-              className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/90 px-3 py-2 rounded-xl font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/90 px-2.5 py-2 rounded-xl font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer"
             >
               <Wifi className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
               <span className="hidden sm:inline">مۆبایل و Wi-Fi</span>
@@ -201,6 +222,18 @@ export const Navbar: React.FC<Props> = ({
         {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 py-3 grid grid-cols-2 gap-1.5">
+            {onManualRefresh && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onManualRefresh();
+                }}
+                className="col-span-2 flex items-center justify-center gap-2 p-2.5 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200"
+              >
+                <RefreshCw className={`w-4 h-4 text-emerald-600 ${isLiveSyncing ? 'animate-spin' : ''}`} />
+                <span>نوێکردنەوە و ڕیفریش (هاوکاتکردنی ڕاستەوخۆ)</span>
+              </button>
+            )}
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

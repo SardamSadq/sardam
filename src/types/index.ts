@@ -61,6 +61,8 @@ export interface Customer {
   idCardPhotoFront?: string;
   idCardPhotoBack?: string;
   personalPhoto?: string;
+  guarantorIdPhoto?: string;
+  promissoryNotePhoto?: string;
   notes?: string;
   createdAt: string;
 }
@@ -115,6 +117,9 @@ export interface Contract {
   securityCheckAmount: number;
   status: 'active' | 'completed' | 'overdue';
   legalTerms: string;
+  promissoryNotePhoto?: string; // وێنەی کۆمپیالە / سەنەد / چەکی زەمانەت
+  guarantorIdPhoto?: string; // وێنەی کارتی نیشتمانی کەفیل
+  contractDocumentPhoto?: string; // وێنەی گرێبەستی واژۆکراو
   notes?: string;
   createdAt: string;
   createdBy?: {
@@ -136,6 +141,7 @@ export interface PaymentRecord {
   paymentMethod: 'cash' | 'bank_transfer' | 'fastpay' | 'fib';
   remainingBalanceAfter: number;
   isEarlyPayoff?: boolean;
+  receiptPhoto?: string; // وێنەی پسوولەی پارە وەرگرتن / حەواڵە
   notes?: string;
   collectedBy?: {
     userId: string;

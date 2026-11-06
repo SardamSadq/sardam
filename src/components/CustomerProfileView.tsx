@@ -75,7 +75,10 @@ export const CustomerProfileView: React.FC<Props> = ({
     setIsEditingNotes(false);
   };
 
-  const handlePhotoUpload = (field: 'idCardPhotoFront' | 'idCardPhotoBack' | 'personalPhoto', e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (
+    field: 'idCardPhotoFront' | 'idCardPhotoBack' | 'personalPhoto' | 'guarantorIdPhoto' | 'promissoryNotePhoto',
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (!selectedCustomer || !e.target.files || !e.target.files[0]) return;
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -310,22 +313,22 @@ export const CustomerProfileView: React.FC<Props> = ({
                   <span>بەڵگەنامە و فۆتۆکۆپی ناسنامە (هاوپێچی فەرمی گرێبەست)</span>
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-center">
                   
                   {/* Photo 1: ID Card Front */}
-                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-3 hover:border-blue-400 transition-colors">
-                    <span className="block text-[11px] font-bold text-slate-700 mb-2">
-                      ڕووی پێشەوەی کارتی نیشتمانی
+                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-2.5 hover:border-blue-400 transition-colors bg-white">
+                    <span className="block text-[11px] font-bold text-slate-700 mb-1.5 truncate">
+                      کارتی نیشتمانی (پێشەوە)
                     </span>
                     {selectedCustomer.idCardPhotoFront ? (
                       <div className="relative group">
                         <img
                           src={selectedCustomer.idCardPhotoFront}
                           alt="ID Front"
-                          className="w-full h-28 object-cover rounded-lg border border-slate-200"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
                         />
                         <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] rounded-lg cursor-pointer transition-opacity">
-                          <span>گۆڕینی وێنە</span>
+                          <span>گۆڕین</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -335,9 +338,9 @@ export const CustomerProfileView: React.FC<Props> = ({
                         </label>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center h-28 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
-                        <Camera className="w-6 h-6 mb-1 text-slate-400" />
-                        <span className="text-[10px]">داگرتنی وێنە</span>
+                      <label className="flex flex-col items-center justify-center h-24 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
+                        <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                        <span className="text-[10px]">داگرتن</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -349,19 +352,19 @@ export const CustomerProfileView: React.FC<Props> = ({
                   </div>
 
                   {/* Photo 2: ID Card Back */}
-                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-3 hover:border-blue-400 transition-colors">
-                    <span className="block text-[11px] font-bold text-slate-700 mb-2">
-                      ڕووی پشتەوەی کارتی نیشتمانی
+                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-2.5 hover:border-blue-400 transition-colors bg-white">
+                    <span className="block text-[11px] font-bold text-slate-700 mb-1.5 truncate">
+                      کارتی نیشتمانی (پشتەوە)
                     </span>
                     {selectedCustomer.idCardPhotoBack ? (
                       <div className="relative group">
                         <img
                           src={selectedCustomer.idCardPhotoBack}
                           alt="ID Back"
-                          className="w-full h-28 object-cover rounded-lg border border-slate-200"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
                         />
                         <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] rounded-lg cursor-pointer transition-opacity">
-                          <span>گۆڕینی وێنە</span>
+                          <span>گۆڕین</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -371,9 +374,9 @@ export const CustomerProfileView: React.FC<Props> = ({
                         </label>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center h-28 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
-                        <Camera className="w-6 h-6 mb-1 text-slate-400" />
-                        <span className="text-[10px]">داگرتنی وێنە</span>
+                      <label className="flex flex-col items-center justify-center h-24 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
+                        <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                        <span className="text-[10px]">داگرتن</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -385,8 +388,8 @@ export const CustomerProfileView: React.FC<Props> = ({
                   </div>
 
                   {/* Photo 3: Personal Photo */}
-                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-3 hover:border-blue-400 transition-colors">
-                    <span className="block text-[11px] font-bold text-slate-700 mb-2">
+                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-2.5 hover:border-blue-400 transition-colors bg-white">
+                    <span className="block text-[11px] font-bold text-slate-700 mb-1.5 truncate">
                       وێنەی کەسیی کڕیار
                     </span>
                     {selectedCustomer.personalPhoto ? (
@@ -394,10 +397,10 @@ export const CustomerProfileView: React.FC<Props> = ({
                         <img
                           src={selectedCustomer.personalPhoto}
                           alt="Personal"
-                          className="w-full h-28 object-cover rounded-lg border border-slate-200"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
                         />
                         <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] rounded-lg cursor-pointer transition-opacity">
-                          <span>گۆڕینی وێنە</span>
+                          <span>گۆڕین</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -407,14 +410,86 @@ export const CustomerProfileView: React.FC<Props> = ({
                         </label>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center h-28 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
-                        <Camera className="w-6 h-6 mb-1 text-slate-400" />
-                        <span className="text-[10px]">داگرتنی وێنە</span>
+                      <label className="flex flex-col items-center justify-center h-24 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
+                        <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                        <span className="text-[10px]">داگرتن</span>
                         <input
                           type="file"
                           accept="image/*"
                           className="hidden"
                           onChange={(e) => handlePhotoUpload('personalPhoto', e)}
+                        />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Photo 4: Guarantor ID Card */}
+                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-2.5 hover:border-blue-400 transition-colors bg-white">
+                    <span className="block text-[11px] font-bold text-slate-700 mb-1.5 truncate">
+                      کارتی نیشتمانی کفیل
+                    </span>
+                    {selectedCustomer.guarantorIdPhoto ? (
+                      <div className="relative group">
+                        <img
+                          src={selectedCustomer.guarantorIdPhoto}
+                          alt="Guarantor ID"
+                          className="w-full h-24 object-cover rounded-lg border border-slate-200"
+                        />
+                        <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] rounded-lg cursor-pointer transition-opacity">
+                          <span>گۆڕین</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handlePhotoUpload('guarantorIdPhoto', e)}
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center h-24 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
+                        <Camera className="w-5 h-5 mb-1 text-slate-400" />
+                        <span className="text-[10px]">داگرتن</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handlePhotoUpload('guarantorIdPhoto', e)}
+                        />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Photo 5: Promissory Note / Kombiyala */}
+                  <div className="border-2 border-dashed border-amber-300 rounded-xl p-2.5 hover:border-amber-500 transition-colors bg-amber-50/40">
+                    <span className="block text-[11px] font-bold text-amber-900 mb-1.5 truncate">
+                      وێنەی کۆمپیالە / سەنەد
+                    </span>
+                    {selectedCustomer.promissoryNotePhoto ? (
+                      <div className="relative group">
+                        <img
+                          src={selectedCustomer.promissoryNotePhoto}
+                          alt="Kombiyala"
+                          className="w-full h-24 object-cover rounded-lg border border-amber-200"
+                        />
+                        <label className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] rounded-lg cursor-pointer transition-opacity">
+                          <span>گۆڕین</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handlePhotoUpload('promissoryNotePhoto', e)}
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center h-24 bg-amber-50/60 rounded-lg cursor-pointer hover:bg-amber-100/60 transition-colors text-amber-600">
+                        <Camera className="w-5 h-5 mb-1 text-amber-600" />
+                        <span className="text-[10px]">داگرتن</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handlePhotoUpload('promissoryNotePhoto', e)}
                         />
                       </label>
                     )}
