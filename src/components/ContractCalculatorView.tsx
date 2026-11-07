@@ -198,6 +198,9 @@ export const ContractCalculatorView: React.FC<Props> = ({
           guarantorId,
           guarantorPhone,
           guarantorWorkplace,
+          idCardPhotoFront: customerIdPhoto || undefined,
+          guarantorIdPhoto: guarantorIdPhoto || undefined,
+          promissoryNotePhoto: promissoryNotePhoto || undefined,
           createdAt: new Date().toISOString(),
         };
       }
@@ -225,6 +228,8 @@ export const ContractCalculatorView: React.FC<Props> = ({
         securityCheckAmount: securityCheckAmount || calculation.remainingBalance,
         status: 'active',
         legalTerms: settings.customLegalTerms,
+        guarantorIdPhoto: guarantorIdPhoto || undefined,
+        promissoryNotePhoto: promissoryNotePhoto || undefined,
         createdAt: new Date().toISOString(),
         createdBy: currentUser ? {
           userId: currentUser.id || currentUser.username,
@@ -783,6 +788,120 @@ export const ContractCalculatorView: React.FC<Props> = ({
               </div>
             </div>
 
+          </div>
+
+          {/* Section 4: بەڵگەنامە و وێنەکان (کارتی نیشتمانی، کەفیل، کۆمپیالە) */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                <Camera className="w-4 h-4 text-purple-600" />
+                <span>چوارەم: بەڵگەنامە، کۆمپیالە و وێنەی کارتی نیشتمانی</span>
+              </div>
+              <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+                خۆکار لەسەر لاپتۆپ خەزن دەبێت
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Customer ID Card */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                <div>
+                  <div className="text-xs font-bold text-slate-800 mb-1">کارتی نیشتمانی کڕیار</div>
+                  <p className="text-[10px] text-slate-500 mb-2">وێنەی پێشەوە یان کارتی نیشتمانی</p>
+                </div>
+                {customerIdPhoto ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-300 group">
+                    <img src={customerIdPhoto} alt="Customer ID" className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setCustomerIdPhoto('')}
+                      className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      title="سڕینەوە"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer border-2 border-dashed border-slate-300 hover:border-purple-500 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-colors bg-white">
+                    <Camera className="w-5 h-5 text-slate-400 group-hover:text-purple-600" />
+                    <span className="text-[11px] text-slate-600 font-medium">گرتنی وێنە / هەڵبژاردن</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => handleUploadPhoto(setCustomerIdPhoto, e)}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Guarantor ID Card */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                <div>
+                  <div className="text-xs font-bold text-slate-800 mb-1">کارتی نیشتمانی کەفیل</div>
+                  <p className="text-[10px] text-slate-500 mb-2">کارتی زامن یا کەفیل</p>
+                </div>
+                {guarantorIdPhoto ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-300 group">
+                    <img src={guarantorIdPhoto} alt="Guarantor ID" className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setGuarantorIdPhoto('')}
+                      className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      title="سڕینەوە"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer border-2 border-dashed border-slate-300 hover:border-purple-500 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-colors bg-white">
+                    <Camera className="w-5 h-5 text-slate-400 group-hover:text-purple-600" />
+                    <span className="text-[11px] text-slate-600 font-medium">گرتنی وێنە / هەڵبژاردن</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => handleUploadPhoto(setGuarantorIdPhoto, e)}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Promissory Note / Kombiyala */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                <div>
+                  <div className="text-xs font-bold text-slate-800 mb-1">کۆمپیالە / سەنەد / چەک</div>
+                  <p className="text-[10px] text-slate-500 mb-2">بەڵگەنامەی قەرز یان کۆمپیالە</p>
+                </div>
+                {promissoryNotePhoto ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-300 group">
+                    <img src={promissoryNotePhoto} alt="Promissory Note" className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setPromissoryNotePhoto('')}
+                      className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
+                      title="سڕینەوە"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="cursor-pointer border-2 border-dashed border-slate-300 hover:border-purple-500 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5 transition-colors bg-white">
+                    <Camera className="w-5 h-5 text-slate-400 group-hover:text-purple-600" />
+                    <span className="text-[11px] text-slate-600 font-medium">گرتنی وێنە / هەڵبژاردن</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => handleUploadPhoto(setPromissoryNotePhoto, e)}
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
           </div>
 
         </div>

@@ -67,6 +67,7 @@ jobs:
           Copy-Item -Recurse "data" -Destination "QISTYAR-Windows\"
           Copy-Item "Start-QISTYAR.bat" -Destination "QISTYAR-Windows\"
           Copy-Item "Start-QISTYAR-Silent.vbs" -Destination "QISTYAR-Windows\"
+          Copy-Item "Install-QISTYAR.bat" -Destination "QISTYAR-Windows\"
           Copy-Item "README-Windows.txt" -Destination "QISTYAR-Windows\"
 
       - name: Compress to ZIP Archive
@@ -74,11 +75,33 @@ jobs:
         run: |
           Compress-Archive -Path "QISTYAR-Windows\*" -DestinationPath "QISTYAR-Windows-64bit.zip" -Force
 
-      - name: Upload Windows 64-bit EXE Artifact
+      - name: Build Official Windows Installer (QISTYAR-Setup-v1.0.0.exe)
+        shell: pwsh
+        run: |
+          try {
+            choco install innosetup -y --no-progress
+            $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+            if (-not (Test-Path $iscc)) {
+                $iscc = (Get-ChildItem -Path "C:\Program Files*" -Filter "ISCC.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+            }
+            if ($iscc -and (Test-Path $iscc)) {
+                Write-Host "Compiling Windows Installer with Inno Setup ($iscc) ..."
+                & $iscc installer.iss
+                Write-Host "Windows Installer generated successfully: QISTYAR-Setup-v1.0.0.exe"
+            } else {
+                Write-Host "Inno Setup compiler not found, fallback to portable zip package."
+            }
+          } catch {
+            Write-Host "Warning: Could not compile installer with Inno Setup, continuing with zip..."
+          }
+
+      - name: Upload Windows 64-bit Packages Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: QISTYAR-Windows-64bit-EXE
-          path: QISTYAR-Windows-64bit.zip
+          name: QISTYAR-Windows-Build
+          path: |
+            QISTYAR-Windows-64bit.zip
+            QISTYAR-Setup-*.exe
           retention-days: 90
 
       - name: Create or Update GitHub Release
@@ -91,10 +114,14 @@ jobs:
           body: |
             ## سیستەمی بەڕێوەبردنی قیست و سەرمایە (QISTYAR) - وەشانی کۆمپیوتەر
             
-            فایلی زیپی خوارەوە دابگرە، دەریبهێنە (Extract)، و کلیک لەسەر `QISTYAR.exe` بکە:
-            - کاردەکات 100% بەبێ ئینتەرنێت (ئۆفلاین).
-            - هەموو داتاکان لە فۆڵدەری `data/db.json` پارێزراون.
-            - دەتوانیت لە ڕێگەی Wi-Fi یان هۆتسپۆت ڕاستەوخۆ بە مۆبایلەکەتەوە بیبەستیتەوە.
-          files: QISTYAR-Windows-64bit.zip
+            بۆ بەکارهێنان و دامەزراندن لەسەر لاپتۆپ:
+            1. دەتوانیت فایلی دامەزرێنەر `QISTYAR-Setup-v1.0.0.exe` دابگریت و ڕاستەوخۆ دایمەزرێنیت.
+            2. یان فایلی `QISTYAR-Windows-64bit.zip` دابگریت، دەریبهێنیت (Extract)، و کلیک لەسەر `Install-QISTYAR.bat` یان `QISTYAR.exe` بکەیت.
+            - 100% ئۆفلاین کاردەکات بەبێ ئینتەرنێت.
+            - هەموو زانیارییەکان، وێنەی کارتی نیشتمانی، کۆمپیالە و پسوولەکان لە فۆڵدەری `data\` بە پارێزراوی خەزن دەبن.
+            - هاوکاتکردنی ڕاستەوخۆ لەگەڵ مۆبایل لە ڕێگەی Wi-Fi / هۆتسپۆت.
+          files: |
+            QISTYAR-Windows-64bit.zip
+            QISTYAR-Setup-*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

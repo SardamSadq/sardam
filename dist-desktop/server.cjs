@@ -5,7 +5,11 @@ var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  try {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  } catch (e) {
+    throw mod = 0, e;
+  }
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -15308,7 +15312,7 @@ var require_shams = __commonJS({
         return true;
       }
       var obj = {};
-      var sym = Symbol("test");
+      var sym = /* @__PURE__ */ Symbol("test");
       var symObj = Object(sym);
       if (typeof sym === "string") {
         return false;
@@ -15367,7 +15371,7 @@ var require_has_symbols = __commonJS({
       if (typeof origSymbol("foo") !== "symbol") {
         return false;
       }
-      if (typeof Symbol("bar") !== "symbol") {
+      if (typeof /* @__PURE__ */ Symbol("bar") !== "symbol") {
         return false;
       }
       return hasSymbolSham();
@@ -23220,10 +23224,15 @@ try {
 }
 var DATA_DIR = import_fs.default.existsSync(import_path.default.resolve(baseAppDir, "data")) ? import_path.default.resolve(baseAppDir, "data") : import_fs.default.existsSync(import_path.default.resolve(process.cwd(), "data")) ? import_path.default.resolve(process.cwd(), "data") : import_path.default.resolve(baseAppDir, "data");
 var DB_FILE = import_path.default.join(DATA_DIR, "db.json");
+var UPLOADS_DIR = import_path.default.join(DATA_DIR, "uploads");
+if (!import_fs.default.existsSync(UPLOADS_DIR)) {
+  import_fs.default.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 var app = (0, import_express.default)();
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3e3;
-app.use(import_express.default.json({ limit: "25mb" }));
-app.use(import_express.default.urlencoded({ extended: true, limit: "25mb" }));
+app.use(import_express.default.json({ limit: "50mb" }));
+app.use(import_express.default.urlencoded({ extended: true, limit: "50mb" }));
+app.use("/uploads", import_express.default.static(UPLOADS_DIR));
 var defaultLegalTerms = `\u0661. \u0644\u0627\u06CC\u06D5\u0646\u06CC \u062F\u0648\u0648\u06D5\u0645 (\u06A9\u0695\u06CC\u0627\u0631) \u0648 \u0644\u0627\u06CC\u06D5\u0646\u06CC \u0633\u06CE\u06CC\u06D5\u0645 (\u06A9\u0641\u06CC\u0644) \u0628\u06D5 \u06CC\u06D5\u06A9\u06D5\u0648\u06D5 \u0648 \u0628\u06D5 \u0647\u0627\u0648\u0628\u06D5\u0634\u06CC \u0628\u06D5\u0631\u067E\u0631\u0633\u06CC\u0627\u0631\u0646 \u0644\u06D5 \u062F\u0627\u0646\u06D5\u0648\u06D5\u06CC \u0647\u06D5\u0645\u0648\u0648 \u0628\u0695\u06CC \u067E\u0627\u0631\u06D5\u06CC \u0642\u06CC\u0633\u062A\u06D5\u06A9\u0627\u0646 \u0644\u06D5 \u06A9\u0627\u062A\u06CC \u062F\u06CC\u0627\u0631\u06CC\u06A9\u0631\u0627\u0648\u06CC \u062E\u06C6\u06CC\u062F\u0627.
 \u0662. \u0644\u06D5 \u062D\u0627\u06B5\u06D5\u062A\u06CC \u062F\u0648\u0627\u06A9\u06D5\u0648\u062A\u0646\u06CC \u0647\u06D5\u0631 \u0642\u06CC\u0633\u062A\u06CE\u06A9 \u0628\u06C6 \u0645\u0627\u0648\u06D5\u06CC \u0632\u06CC\u0627\u062A\u0631 \u0644\u06D5 \u0667 \u0695\u06C6\u0698\u060C \u062A\u06D5\u0648\u0627\u0648\u06CC \u067E\u0627\u0631\u06D5\u06CC \u0645\u0627\u0648\u06D5\u06CC \u0642\u06CC\u0633\u062A\u06D5\u06A9\u0627\u0646 \u062F\u06D5\u0628\u06CE\u062A\u06D5 \u0642\u06D5\u0631\u0632\u06CE\u06A9\u06CC \u062F\u06D5\u0633\u062A\u0628\u06D5\u062C\u06CE (\u062D\u0627\u06B5) \u0648 \u0641\u0631\u06C6\u0634\u06CC\u0627\u0631 \u0645\u0627\u0641\u06CC \u0642\u0627\u0646\u0648\u0646\u06CC \u0647\u06D5\u06CC\u06D5 \u067E\u06D5\u0646\u0627 \u0628\u0628\u0627\u062A\u06D5 \u0628\u06D5\u0631 \u062F\u0627\u062F\u06AF\u0627\u06A9\u0627\u0646\u06CC \u0647\u06D5\u0631\u06CE\u0645\u06CC \u06A9\u0648\u0631\u062F\u0633\u062A\u0627\u0646 \u0648 \u062F\u06D5\u0633\u062A\u0628\u06D5\u0633\u06D5\u0631\u062F\u0627\u06AF\u0631\u062A\u0646\u06CC \u0645\u06C6\u06B5\u06D5\u062A \u0648 \u0645\u0648\u0648\u0686\u06D5\u06CC \u06A9\u0695\u06CC\u0627\u0631 \u06CC\u0627\u0646 \u06A9\u0641\u06CC\u0644.
 \u0663. \u0645\u06C6\u0628\u0627\u06CC\u0644\u06D5\u06A9\u06D5 \u0628\u06D5 \u0626\u06D5\u0645\u0627\u0646\u06D5\u062A \u0644\u0627\u06CC \u06A9\u0695\u06CC\u0627\u0631\u06D5 \u062A\u0627 \u06A9\u0627\u062A\u06CC \u062F\u0627\u0646\u06D5\u0648\u06D5\u06CC \u062A\u06D5\u0648\u0627\u0648\u06CC \u06A9\u06C6\u062A\u0627 \u062F\u06CC\u0646\u0627\u0631\u06CC \u0642\u06CC\u0633\u062A\u06D5\u06A9\u0627\u0646\u060C \u0648 \u06A9\u0695\u06CC\u0627\u0631 \u0645\u0627\u0641\u06CC \u0641\u0631\u06C6\u0634\u062A\u0646\u060C \u0628\u06D5\u062E\u0634\u06CC\u0646\u060C \u06CC\u0627 \u0695\u06D5\u0647\u0646\u06A9\u0631\u062F\u0646\u06CC \u0645\u06C6\u0628\u0627\u06CC\u0644\u06D5\u06A9\u06D5\u06CC \u0646\u06CC\u06CC\u06D5 \u0628\u06D5\u0628\u06CE \u0695\u06D5\u0632\u0627\u0645\u06D5\u0646\u062F\u06CC \u0646\u0648\u0648\u0633\u0631\u0627\u0648\u06CC \u0641\u0631\u06C6\u0634\u06CC\u0627\u0631.
@@ -23296,9 +23305,51 @@ function initDb() {
     return fallback;
   }
 }
+var lastDataModified = Date.now();
+function saveBase64Image(dataUri, filenamePrefix) {
+  if (!dataUri || typeof dataUri !== "string" || !dataUri.startsWith("data:image/")) return;
+  try {
+    const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) return;
+    const ext = matches[1].replace("jpeg", "jpg");
+    const buffer = Buffer.from(matches[2], "base64");
+    const safeName = filenamePrefix.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const targetFile = import_path.default.join(UPLOADS_DIR, `${safeName}.${ext}`);
+    import_fs.default.writeFileSync(targetFile, buffer);
+  } catch (e) {
+  }
+}
+function saveImagesToDisk(data) {
+  try {
+    if (!import_fs.default.existsSync(UPLOADS_DIR)) {
+      import_fs.default.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    data.customers.forEach((c) => {
+      if (c.idCardPhotoFront) saveBase64Image(c.idCardPhotoFront, `customer_${c.id}_id_front`);
+      if (c.idCardPhotoBack) saveBase64Image(c.idCardPhotoBack, `customer_${c.id}_id_back`);
+      if (c.personalPhoto) saveBase64Image(c.personalPhoto, `customer_${c.id}_personal`);
+      if (c.guarantorIdPhoto) saveBase64Image(c.guarantorIdPhoto, `customer_${c.id}_guarantor_id`);
+      if (c.promissoryNotePhoto) saveBase64Image(c.promissoryNotePhoto, `customer_${c.id}_kombiyala`);
+    });
+    data.contracts.forEach((ct) => {
+      if (ct.promissoryNotePhoto) saveBase64Image(ct.promissoryNotePhoto, `contract_${ct.contractNumber}_kombiyala`);
+      if (ct.guarantorIdPhoto) saveBase64Image(ct.guarantorIdPhoto, `contract_${ct.contractNumber}_guarantor_id`);
+      if (ct.contractDocumentPhoto) saveBase64Image(ct.contractDocumentPhoto, `contract_${ct.contractNumber}_doc`);
+    });
+    data.payments.forEach((p) => {
+      if (p.receiptPhoto) saveBase64Image(p.receiptPhoto, `receipt_${p.receiptNumber}`);
+    });
+  } catch (err) {
+    console.error("Error saving image attachments to disk:", err);
+  }
+}
 function saveDb(db2) {
   try {
+    lastDataModified = Date.now();
     import_fs.default.writeFileSync(DB_FILE, JSON.stringify(db2, null, 2), "utf8");
+    const backupFile = import_path.default.join(DATA_DIR, "db_backup.json");
+    import_fs.default.writeFileSync(backupFile, JSON.stringify(db2, null, 2), "utf8");
+    saveImagesToDisk(db2);
   } catch (err) {
     console.error("Failed to write db.json:", err);
   }
@@ -23376,7 +23427,17 @@ app.get("/api/data", (_req, res) => {
     payments: db.payments,
     expenses: db.expenses,
     settings: db.settings,
-    users: db.users
+    users: db.users,
+    lastModified: lastDataModified
+  });
+});
+app.get("/api/sync-status", (_req, res) => {
+  res.json({
+    lastModified: lastDataModified,
+    customersCount: db.customers.length,
+    contractsCount: db.contracts.length,
+    paymentsCount: db.payments.length,
+    timestamp: Date.now()
   });
 });
 app.get("/api/users", (_req, res) => {
