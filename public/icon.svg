@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="120" fill="url(#bgGrad)" />
+
+  <!-- Inner border ring -->
+  <rect x="16" y="16" width="480" height="480" rx="104" fill="none" stroke="#3b82f6" stroke-width="4" stroke-opacity="0.3" />
+
+  <!-- Smartphone Body in Center -->
+  <g filter="url(#shadow)" transform="translate(146, 76)">
+    <!-- Phone Frame -->
+    <rect x="0" y="0" width="220" height="360" rx="36" fill="#0f172a" stroke="#475569" stroke-width="6" />
+    <!-- Screen -->
+    <rect x="12" y="14" width="196" height="332" rx="26" fill="#1e293b" />
+    
+    <!-- Top speaker / camera pill -->
+    <rect x="75" y="22" width="70" height="10" rx="5" fill="#334155" />
+
+    <!-- Screen UI Elements: Installment Card -->
+    <rect x="26" y="56" width="168" height="74" rx="12" fill="url(#goldGrad)" />
+    <!-- Card Text Lines -->
+    <rect x="40" y="74" width="80" height="8" rx="4" fill="#ffffff" fill-opacity="0.9" />
+    <rect x="40" y="92" width="120" height="12" rx="4" fill="#ffffff" />
+    <circle cx="166" cy="78" r="8" fill="#ffffff" fill-opacity="0.8" />
+
+    <!-- Installment Rows -->
+    <rect x="26" y="148" width="168" height="38" rx="10" fill="#334155" />
+    <rect x="40" y="162" width="60" height="10" rx="5" fill="#94a3b8" />
+    <circle cx="168" cy="167" r="7" fill="#10b981" />
+
+    <rect x="26" y="196" width="168" height="38" rx="10" fill="#334155" />
+    <rect x="40" y="210" width="75" height="10" rx="5" fill="#94a3b8" />
+    <circle cx="168" cy="215" r="7" fill="#10b981" />
+
+    <rect x="26" y="244" width="168" height="38" rx="10" fill="#334155" />
+    <rect x="40" y="258" width="50" height="10" rx="5" fill="#94a3b8" />
+    <circle cx="168" cy="263" r="7" fill="#38bdf8" />
+
+    <!-- Home Indicator -->
+    <rect x="80" y="328" width="60" height="4" rx="2" fill="#64748b" />
+  </g>
+
+  <!-- Golden / Green Verification Badge (Bottom Right) -->
+  <g transform="translate(315, 295)" filter="url(#shadow)">
+    <circle cx="55" cy="55" r="55" fill="#10b981" stroke="#ffffff" stroke-width="6" />
+    <!-- Checkmark -->
+    <path d="M36 56 L49 69 L76 42" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
