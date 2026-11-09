@@ -23,7 +23,7 @@ call npm run build
 
 echo [3/4] کۆکردنەوەی سێرڤەر بە یەک فایل (server.cjs)...
 if not exist "dist-desktop" mkdir dist-desktop
-call npx esbuild server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist-desktop\server.cjs --external:vite
+call npx esbuild server.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist-desktop\server.cjs --external:vite
 copy /y dist-desktop\server.cjs server.cjs >nul
 
 echo [4/4] کۆمپایڵکردنی فایلی فەرمی QISTYAR.exe...

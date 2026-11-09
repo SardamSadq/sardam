@@ -17,6 +17,7 @@ import { SettingsAndBackupView } from './components/SettingsAndBackupView.tsx';
 import { PaymentModal } from './components/PaymentModal.tsx';
 import { PrintPreviewModal, PrintMode } from './components/PrintPreviewModal.tsx';
 import { MobileConnectModal } from './components/MobileConnectModal.tsx';
+import { SafariInstallBanner } from './components/SafariInstallBanner.tsx';
 import { 
   Customer, 
   Contract, 
@@ -651,6 +652,9 @@ export default function App() {
         isOpen={mobileConnectModalOpen}
         onClose={() => setMobileConnectModalOpen(false)}
       />
+
+      {/* Safari PWA Install Helper Banner for iOS / Mac */}
+      <SafariInstallBanner />
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 no-print">
