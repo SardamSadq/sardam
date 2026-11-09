@@ -32,7 +32,7 @@ interface Props {
       role?: UserRole;
     };
   }) => Promise<PaymentRecord>;
-  onPrintReceipt: (payment: PaymentRecord, contract: Contract) => void;
+  onPrintReceipt: (payment: PaymentRecord, contract: Contract, autoPrint?: boolean) => void;
 }
 
 export const PaymentModal: React.FC<Props> = ({
@@ -50,6 +50,7 @@ export const PaymentModal: React.FC<Props> = ({
     defaultContract?.id || (activeContracts[0]?.id || '')
   );
   const [receiptPhoto, setReceiptPhoto] = useState<string>('');
+  const [autoPrintReceipt, setAutoPrintReceipt] = useState<boolean>(true);
 
   const selectedContract = contracts.find((c) => c.id === selectedContractId) || null;
 
@@ -136,7 +137,13 @@ export const PaymentModal: React.FC<Props> = ({
           role: currentUser.role,
         } : undefined,
       });
-      setCreatedPayment(rec);
+
+      if (autoPrintReceipt && selectedContract) {
+        onClose();
+        onPrintReceipt(rec, selectedContract, true);
+      } else {
+        setCreatedPayment(rec);
+      }
     } catch {
       alert('هەڵە لە تۆمارکردنی پارەدانەکە');
     } finally {
@@ -385,13 +392,35 @@ export const PaymentModal: React.FC<Props> = ({
                   )}
                 </div>
 
+                {/* Direct LAN Auto-Print Toggle */}
+                <div className="p-3 bg-emerald-50/80 border border-emerald-300 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Printer className="w-4 h-4 text-emerald-700 shrink-0" />
+                    <div>
+                      <span className="font-bold text-emerald-950 text-xs block">
+                        چاپکردنی دەستبەجێ بە پرینتەری LAN
+                      </span>
+                      <span className="text-[10px] text-emerald-800">
+                        خۆکار وەسڵ دەردەکات و دەینێرێت بۆ پرینتەرەکەت بەبێ پرسیار
+                      </span>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    id="autoPrintReceipt"
+                    checked={autoPrintReceipt}
+                    onChange={(e) => setAutoPrintReceipt(e.target.checked)}
+                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer"
+                  />
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading || paymentAmount <= 0}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-emerald-600/30 text-xs flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition-all shadow-md shadow-emerald-600/30 text-xs flex items-center justify-center gap-2 disabled:opacity-50 mt-2 cursor-pointer"
                 >
-                  <Check className="w-4 h-4" />
-                  {loading ? 'تۆمارکردن...' : 'تۆمارکردن و دەرکردنی وەسڵ'}
+                  <Printer className="w-4 h-4" />
+                  {loading ? 'تۆمارکردن و ناردن بۆ پرینتەر...' : 'تۆمارکردن و دەرکردنی وەسڵ'}
                 </button>
               </>
             )}

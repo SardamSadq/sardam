@@ -107,6 +107,7 @@ export default function App() {
   const [printMode, setPrintMode] = useState<PrintMode>('legal');
   const [printContractTarget, setPrintContractTarget] = useState<Contract | null>(null);
   const [printPaymentTarget, setPrintPaymentTarget] = useState<PaymentRecord | null>(null);
+  const [printAutoTrigger, setPrintAutoTrigger] = useState(false);
 
   const [mobileConnectModalOpen, setMobileConnectModalOpen] = useState(false);
 
@@ -458,10 +459,11 @@ export default function App() {
   };
 
   // Open Print Modal for Receipt
-  const openPrintReceipt = (payment: PaymentRecord, contract?: Contract) => {
+  const openPrintReceipt = (payment: PaymentRecord, contract?: Contract, autoPrint = false) => {
     setPrintPaymentTarget(payment);
     setPrintContractTarget(contract || contracts.find((c) => c.id === payment.contractId) || null);
     setPrintMode('receipt');
+    setPrintAutoTrigger(autoPrint);
     setPrintModalOpen(true);
   };
 
@@ -623,21 +625,25 @@ export default function App() {
         defaultContract={paymentContractTarget}
         currentUser={currentUser}
         onRecordPayment={handleRecordPayment}
-        onPrintReceipt={(rec, ct) => {
+        onPrintReceipt={(rec, ct, autoPrint) => {
           setPaymentModalOpen(false);
-          openPrintReceipt(rec, ct);
+          openPrintReceipt(rec, ct, autoPrint);
         }}
       />
 
       {/* Print Preview & A4 Single-Page Print Modal */}
       <PrintPreviewModal
         isOpen={printModalOpen}
-        onClose={() => setPrintModalOpen(false)}
+        onClose={() => {
+          setPrintModalOpen(false);
+          setPrintAutoTrigger(false);
+        }}
         mode={printMode}
         contract={printContractTarget}
         customer={printTargetCustomer}
         payment={printPaymentTarget}
         settings={settings}
+        autoPrint={printAutoTrigger}
       />
 
       {/* Mobile & Wi-Fi Connection Modal */}
